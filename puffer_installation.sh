@@ -60,10 +60,6 @@ cd ~
 
 sudo apt-get install -y build-essential git-lfs cmake
 openssl rand -hex 32 | tr -d "\n" > "/tmp/jwtsecret"
-cd /tmp/
-echo "Enter your private key for the wallet:"
-read -s wallet_private_key
-echo "$wallet_private_key" > jwtsecret
 cd ~
 
 if [ ! -d "$HOME/nimbus-eth2" ]; then
