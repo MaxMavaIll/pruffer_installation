@@ -2,6 +2,7 @@
 
 Clone the repository:
 ```
+cd $HOME
 git clone https://github.com/MaxMavaIll/puffer_installation.git
 cd puffer_installation
 chmod +x puffer_installation.sh
