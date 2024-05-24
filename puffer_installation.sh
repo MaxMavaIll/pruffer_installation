@@ -105,8 +105,22 @@ cd ~/nimbus-eth2/
 while true; do
     echo "Enter the password you used when creating the puffer validator key:"
     read -s validator_password
-    echo $validator_password | build/nimbus_beacon_node deposits import --data-dir=build/data/shared_holesky_0 && break
-    echo "Invalid password. Please try again."
+    output=$(echo $validator_password | build/nimbus_beacon_node deposits import --data-dir=build/data/shared_holesky_0 2>&1)
+    echo "$output"
+    if [[ "$output" == *"System error while entering password"* ]]; then
+        echo "Invalid password. Please try again."
+        continue
+    elif [[ "$output" == *"Failed to import keystore"* || "$output" == *"press ENTER to skip importing this keystore"* ]]; then
+        echo "Failed to import keystore."
+        echo "Try importing the keys again? (y/n)"
+        read try_again
+        if [[ "$try_again" == "y" || "$try_again" == "yes" ]]; then
+            continue
+        fi
+    else
+        continue
+    fi
+    break
 done
 
 cd ~
