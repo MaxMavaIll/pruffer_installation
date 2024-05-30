@@ -1,5 +1,7 @@
 #!/bin/bash
 
+FILE_PATH=$HOME/pruffer
+
 sudo apt update
 sudo apt install -y build-essential curl libssl-dev pkg-config screen
 
@@ -10,8 +12,8 @@ source ~/.bashrc
 
 rustc --version
 
-mkdir -p ~/puffer
-cd ~/puffer
+mkdir -p $FILE_PATH
+cd $FILE_PATH
 
 setup_coral() {
     git clone https://github.com/PufferFinance/coral
@@ -38,22 +40,22 @@ if [ ! -d "$HOME/puffer/coral" ]; then
     read setup_choice
 
     if [ "$setup_choice" == "y" ]; then
-        cd ~/puffer
+        cd $FILE_PATH
         setup_coral
     else
         echo "Please provide the path to your existing coral directory:"
         read coral_path
 
         if [ -d "$coral_path" ]; then
-            mv "$coral_path" ~/puffer/coral
-            echo "Coral directory has been moved to ~/puffer/coral."
+            mv "$coral_path" $FILE_PATH/coral
+            echo "Coral directory has been moved to $FILE_PATH/coral."
         else
             echo "The provided path does not exist. Exiting setup."
             exit 1
         fi
     fi
 else
-    echo "Coral directory already exists at ~/puffer/coral."
+    echo "Coral directory already exists at $FILE_PATH/coral."
 fi
 
 cd ~
@@ -83,7 +85,7 @@ build/nimbus_beacon_node trustedNodeSync \
   --data-dir=build/data/shared_holesky_0 \
   --trusted-node-url=https://holesky-checkpoint-sync.stakely.io/
 
-cd ~/puffer/coral/etc/keys/bls_keys
+cd $FILE_PATH/coral/etc/keys/bls_keys
 validator_keys=( $(ls) )
 
 echo "Select a validator key file from the list below:"
@@ -96,10 +98,10 @@ select validator_key_file in "${validator_keys[@]}"; do
     fi
 done
 
-cp -v ~/puffer/coral/etc/keys/bls_keys/$validator_key_file ~/nimbus-eth2/build/data/shared_holesky_0/validators/
+cp -v $FILE_PATH/coral/etc/keys/bls_keys/$validator_key_file ~/nimbus-eth2/build/data/shared_holesky_0/validators/
 
 mkdir -p ~/nimbus-eth2/validator_keys/
-cp -v ~/puffer/coral/etc/keys/bls_keys/$validator_key_file ~/nimbus-eth2/validator_keys/keystore.json
+cp -v $FILE_PATH/coral/etc/keys/bls_keys/$validator_key_file ~/nimbus-eth2/validator_keys/keystore.json
 
 cd ~/nimbus-eth2/
 while true; do
