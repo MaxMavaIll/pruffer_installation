@@ -153,30 +153,30 @@ git clone https://github.com/NethermindEth/nethermind.git
 cd nethermind/src/Nethermind/
 dotnet build Nethermind.sln -c Release
 
-print_info "Enter your wallet address:"
-read wallet_address
+# print_info "Enter your wallet address:"
+# read wallet_address
 
-screen -dmS consensus bash -c "
-cd ~/nimbus-eth2
-./run-holesky-beacon-node.sh --web3-url=http://127.0.0.1:8551 --suggested-fee-recipient=$wallet_address --jwt-secret=/tmp/jwtsecret
-"
+# screen -dmS consensus bash -c "
+# cd ~/nimbus-eth2
+# ./run-holesky-beacon-node.sh --web3-url=http://127.0.0.1:8551 --suggested-fee-recipient=$wallet_address --jwt-secret=/tmp/jwtsecret
+# "
 
-if screen -list | grep -q "consensus"; then
-  print_info "Consensus client is running in a screen session named 'consensus'."
-else
-  print_error "Failed to start consensus client."
-fi
+# if screen -list | grep -q "consensus"; then
+#   print_info "Consensus client is running in a screen session named 'consensus'."
+# else
+#   print_error "Failed to start consensus client."
+# fi
 
-screen -dmS execution bash -c "
-cd ~/nethermind/src/Nethermind/Nethermind.Runner
-dotnet run -c Release -- --config=holesky --datadir=\"../../../../nethermind-datadir\" --JsonRpc.Host=0.0.0.0 --JsonRpc.JwtSecretFile=/tmp/jwtsecret
-"
+# screen -dmS execution bash -c "
+# cd ~/nethermind/src/Nethermind/Nethermind.Runner
+# dotnet run -c Release -- --config=holesky --datadir=\"../../../../nethermind-datadir\" --JsonRpc.Host=0.0.0.0 --JsonRpc.JwtSecretFile=/tmp/jwtsecret
+# "
 
-if screen -list | grep -q "execution"; then
-  print_info "Execution client is running in a screen session named 'execution'."
-else
-  print_error "Failed to start execution client."
-fi
+# if screen -list | grep -q "execution"; then
+#   print_info "Execution client is running in a screen session named 'execution'."
+# else
+#   print_error "Failed to start execution client."
+# fi
 
-print_info "Both clients are now running in their respective screen sessions."
-print_info "You can attach to the sessions using 'screen -r consensus' and 'screen -r execution'."
+# print_info "Both clients are now running in their respective screen sessions."
+# print_info "You can attach to the sessions using 'screen -r consensus' and 'screen -r execution'."
