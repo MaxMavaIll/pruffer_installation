@@ -34,7 +34,7 @@ setup_coral() {
     eval $user_command
 }
 
-if [ ! -d "$HOME/puffer/coral" ]; then
+if [ ! -d "$FILE_PATH/coral" ]; then
     echo "It seems you have not setup the coral directory yet."
     echo "Do you want to setup the coral directory now?If this directory already exists, type NO and provide the correct full_path to it (y/n)"
     read setup_choice
