@@ -2,6 +2,21 @@
 
 FILE_PATH=$HOME/pruffer
 
+
+
+print_error() {
+  echo -e "\e[1;31m$1\e[0m"
+}
+
+print_info() {
+  echo -e "\e[1;33m$1\e[0m"
+}
+
+print_info2() {
+  echo -e "\e[1;34m$1\e[0m"
+}
+
+
 sudo apt update
 sudo apt install -y build-essential curl libssl-dev pkg-config screen
 
@@ -35,27 +50,27 @@ setup_coral() {
 }
 
 if [ ! -d "$FILE_PATH/coral" ]; then
-    echo "It seems you have not setup the coral directory yet."
-    echo "Do you want to setup the coral directory now?If this directory already exists, type NO and provide the correct full_path to it (y/n)"
+    print_info "It seems you have not setup the coral directory yet."
+    print_info "Do you want to setup the coral directory now?If this directory already exists, type NO and provide the correct full_path to it (y/n)"
     read setup_choice
 
     if [ "$setup_choice" == "y" ]; then
         cd $FILE_PATH
         setup_coral
     else
-        echo "Please provide the path to your existing coral directory:"
+        print_info "Please provide the path to your existing coral directory:"
         read coral_path
 
         if [ -d "$coral_path" ]; then
             mv "$coral_path" $FILE_PATH/coral
-            echo "Coral directory has been moved to $FILE_PATH/coral."
+            print_info "Coral directory has been moved to $FILE_PATH/coral."
         else
-            echo "The provided path does not exist. Exiting setup."
+            print_error "The provided path does not exist. Exiting setup."
             exit 1
         fi
     fi
 else
-    echo "Coral directory already exists at $FILE_PATH/coral."
+    print_info2 "Coral directory already exists at $FILE_PATH/coral."
 fi
 
 cd ~
@@ -70,7 +85,7 @@ fi
 cd nimbus-eth2
 
 if [ ! -f build/nimbus_beacon_node ]; then
-    echo "Enter the amount of RAM you want to dedicate (e.g., 12 for 12GB):"
+    print_info "Enter the amount of RAM you want to dedicate (e.g., 12 for 12GB):"
     read ram_amount
 
     if [ -z "$ram_amount" ]; then
@@ -88,13 +103,13 @@ build/nimbus_beacon_node trustedNodeSync \
 cd $FILE_PATH/coral/etc/keys/bls_keys
 validator_keys=( $(ls) )
 
-echo "Select a validator key file from the list below:"
+print_info "Select a validator key file from the list below:"
 select validator_key_file in "${validator_keys[@]}"; do
     if [ -n "$validator_key_file" ]; then
-        echo "You selected $validator_key_file"
+        print_info2 "You selected $validator_key_file"
         break
     else
-        echo "Invalid selection, please try again."
+        print_info2 "Invalid selection, please try again."
     fi
 done
 
@@ -105,16 +120,16 @@ cp -v $FILE_PATH/coral/etc/keys/bls_keys/$validator_key_file ~/nimbus-eth2/valid
 
 cd ~/nimbus-eth2/
 while true; do
-    echo "Enter the password you used when creating the puffer validator key:"
+    print_info "Enter the password you used when creating the puffer validator key:"
     read -s validator_password
     output=$(echo $validator_password | build/nimbus_beacon_node deposits import --data-dir=build/data/shared_holesky_0 2>&1)
-    echo "$output"
+    print_info2 "$output"
     if [[ "$output" == *"System error while entering password"* ]]; then
-        echo "Invalid password. Please try again."
+        print_error "Invalid password. Please try again."
         continue
     elif [[ "$output" == *"Failed to import keystore"* || "$output" == *"press ENTER to skip importing this keystore"* ]]; then
-        echo "Failed to import keystore."
-        echo "Try importing the keys again? (y/n)"
+        print_error "Failed to import keystore."
+        print_info "Try importing the keys again? (y/n)"
         read try_again
         if [[ "$try_again" == "y" || "$try_again" == "yes" ]]; then
             continue
@@ -138,7 +153,7 @@ git clone https://github.com/NethermindEth/nethermind.git
 cd nethermind/src/Nethermind/
 dotnet build Nethermind.sln -c Release
 
-echo "Enter your wallet address:"
+print_info "Enter your wallet address:"
 read wallet_address
 
 screen -dmS consensus bash -c "
@@ -147,9 +162,9 @@ cd ~/nimbus-eth2
 "
 
 if screen -list | grep -q "consensus"; then
-  echo "Consensus client is running in a screen session named 'consensus'."
+  print_info "Consensus client is running in a screen session named 'consensus'."
 else
-  echo "Failed to start consensus client."
+  print_error "Failed to start consensus client."
 fi
 
 screen -dmS execution bash -c "
@@ -158,10 +173,10 @@ dotnet run -c Release -- --config=holesky --datadir=\"../../../../nethermind-dat
 "
 
 if screen -list | grep -q "execution"; then
-  echo "Execution client is running in a screen session named 'execution'."
+  print_info "Execution client is running in a screen session named 'execution'."
 else
-  echo "Failed to start execution client."
+  print_error "Failed to start execution client."
 fi
 
-echo "Both clients are now running in their respective screen sessions."
-echo "You can attach to the sessions using 'screen -r consensus' and 'screen -r execution'."
+print_info "Both clients are now running in their respective screen sessions."
+print_info "You can attach to the sessions using 'screen -r consensus' and 'screen -r execution'."
