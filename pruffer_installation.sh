@@ -162,8 +162,8 @@ Description=Puffer
 After=network-online.target
 
 [Service]
-User=ubuntu2
-WorkingDirectory=/home/ubuntu2/nimbus-eth2
+User=$USER
+WorkingDirectory=$HOME/nimbus-eth2
 ExecStart=bash -c "./run-holesky-beacon-node.sh --web3-url=http://127.0.0.1:8551 --suggested-fee-recipient=$wallet_address --jwt-secret=/tmp/jwtsecret"
 Restart=always
 RestartSec=3
@@ -185,8 +185,8 @@ Description=Puffer
 After=network-online.target
 
 [Service]
-User=ubuntu2
-WorkingDirectory=/home/ubuntu2/nethermind/src/Nethermind/Nethermind.Runner
+User=$USER
+WorkingDirectory=$HOME/nethermind/src/Nethermind/Nethermind.Runner
 ExecStart=bash -c "dotnet run -c Release -- --config=holesky --datadir=\"../../../../nethermind-datadir\" --JsonRpc.Host=0.0.0.0 --JsonRpc.JwtSecretFile=/tmp/jwtsecret"
 Restart=always
 RestartSec=3
