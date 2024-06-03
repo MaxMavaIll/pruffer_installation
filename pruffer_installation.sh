@@ -153,8 +153,58 @@ git clone https://github.com/NethermindEth/nethermind.git
 cd nethermind/src/Nethermind/
 dotnet build Nethermind.sln -c Release
 
-# print_info "Enter your wallet address:"
-# read wallet_address
+print_info "Enter your wallet address:"
+read wallet_address
+
+sudo tee /etc/systemd/system/pruff-nimbus.service > /dev/null <<EOF
+[Unit]
+Description=Puffer
+After=network-online.target
+
+[Service]
+User=ubuntu2
+WorkingDirectory=/home/ubuntu2/nimbus-eth2
+ExecStart=bash -c "./run-holesky-beacon-node.sh --web3-url=http://127.0.0.1:8551 --suggested-fee-recipient=$wallet_address --jwt-secret=/tmp/jwtsecret"
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+print_info "Reloading systemd daemon and enabling the service NIMBUS"
+sudo systemctl daemon-reload
+sudo systemctl enable pruff-nimbus.service
+sudo systemctl start pruff-nimbus.service
+
+
+sudo tee /etc/systemd/system/pruff-nethermind.service > /dev/null <<EOF
+[Unit]
+Description=Puffer
+After=network-online.target
+
+[Service]
+User=ubuntu2
+WorkingDirectory=/home/ubuntu2/nethermind/src/Nethermind/Nethermind.Runner
+ExecStart=bash -c "dotnet run -c Release -- --config=holesky --datadir=\"../../../../nethermind-datadir\" --JsonRpc.Host=0.0.0.0 --JsonRpc.JwtSecretFile=/tmp/jwtsecret"
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+print_info "Reloading systemd daemon and enabling the service NETHERMIND"
+sudo systemctl daemon-reload
+sudo systemctl enable pruff-nethermind.service
+sudo systemctl start pruff-nethermind.service
+
+
+print_info "To view the logs, run: "
+print_info "journalctl -fn 100 -u pruff-nimbus.service -o cat"
+print_info "journalctl -fn 100 -u pruff-nethermind.service -o cat"
 
 # screen -dmS consensus bash -c "
 # cd ~/nimbus-eth2
